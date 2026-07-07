@@ -3,116 +3,145 @@
 <title>Nested</title>
 <style>
   :root {
-    --bg: #ffffff;
-    --fill: #f0f0f2;
+    --bg: #f5f5f7;
+    --surface: #ffffff;
     --ink: #1d1d1f;
-    --ink-2: #86868b;
-    --blue: #0071e3;
-    --star: #ff9f0a;
-    --hair: rgba(0,0,0,.08);
+    --ink-2: #6e6e73;
+    --ink-3: #a1a1a6;
+    --accent: #0071e3;
+    --accent-bg: #eaf2fd;
+    --star: #f5a623;
+    --hair: rgba(0,0,0,.09);
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 34px rgba(0,0,0,.07);
+    --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Helvetica Neue", Arial, sans-serif;
+    --serif: "New York", ui-serif, Georgia, "Times New Roman", serif;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #000000;
-      --fill: #1c1c1e;
+      --surface: #1c1c1e;
       --ink: #f5f5f7;
-      --ink-2: #8a8a8f;
-      --blue: #0a84ff;
-      --star: #ffd60a;
-      --hair: rgba(255,255,255,.12);
+      --ink-2: #a1a1a6;
+      --ink-3: #6c6c70;
+      --accent: #0a84ff;
+      --accent-bg: #10233a;
+      --star: #ffd426;
+      --hair: rgba(255,255,255,.11);
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
     }
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
-  body {
-    background: var(--bg); color: var(--ink);
-    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased; letter-spacing: -0.01em;
-  }
+  body { background: var(--bg); color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; letter-spacing: -0.01em; }
   button, input { font-family: inherit; color: inherit; }
   button { cursor: pointer; background: none; border: none; padding: 0; }
 
-  .wrap { max-width: 600px; margin: 0 auto; padding: 22px 22px 90px; }
+  /* state visibility */
+  .hero { display: none; }
+  .app { display: none; }
+  body.home .hero { display: flex; }
+  body.viewing .app { display: block; }
 
-  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
-  .brand { font-size: 15px; font-weight: 600; color: var(--ink-2); letter-spacing: -0.01em; }
-  .brand:hover { color: var(--ink); }
-  .starbtn { color: var(--ink-2); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; }
-  .starbtn:hover { background: var(--fill); color: var(--ink); }
-  .starbtn.active { color: var(--star); }
-
-  /* search (iOS filled style) */
-  .search { position: relative; }
+  /* shared search field */
+  .search { position: relative; width: 100%; }
+  .search .ico { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
   .search input {
-    width: 100%; padding: 14px 16px 14px 46px; font-size: 18px;
-    background: var(--fill); border: none; border-radius: 13px; letter-spacing: -0.01em;
+    width: 100%; padding: 14px 16px 14px 46px; font-size: 17px; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--hair); border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04); letter-spacing: -0.01em; transition: border-color .15s, box-shadow .15s;
   }
-  .search input::placeholder { color: var(--ink-2); }
-  .search input:focus { outline: 2px solid var(--blue); outline-offset: 0; }
-  .search .ico { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--ink-2); pointer-events: none; }
+  .search input::placeholder { color: var(--ink-3); }
+  .search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-bg); }
 
-  .hint { margin: 18px 2px 0; color: var(--ink-2); font-size: 15px; }
-  .hint .ex { color: var(--blue); margin-right: 4px; }
-  .hint .ex:hover { text-decoration: underline; }
+  /* ---------- HOME ---------- */
+  .hero { min-height: 100svh; flex-direction: column; align-items: center; justify-content: center;
+          text-align: center; padding: 24px 24px 12vh; }
+  .hero .mark { display: flex; align-items: center; gap: 11px; font-size: 34px; font-weight: 600; letter-spacing: -0.03em; }
+  .hero .mark .g { color: var(--accent); font-size: 30px; }
+  .hero .sub { margin: 14px 0 30px; color: var(--ink-2); font-size: 18px; line-height: 1.5; max-width: 330px; }
+  .hero .search { max-width: 440px; }
+  .hero .egs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+  .pill { background: var(--surface); border: 1px solid var(--hair); border-radius: 999px; padding: 7px 15px; font-size: 14px; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+  .pill:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* dive trail */
-  .trail { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; margin: 26px 2px 0; font-size: 14px; }
+  /* ---------- VIEWING ---------- */
+  .app { max-width: 660px; margin: 0 auto; padding: 0 22px 120px; }
+  .bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 14px;
+         padding: 14px 0 13px; background: var(--bg); border-bottom: 1px solid var(--hair); }
+  .brand { font-size: 15px; font-weight: 600; color: var(--ink-2); display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .brand .g { color: var(--accent); }
+  .brand:hover { color: var(--ink); }
+  .bar .search { flex: 1; }
+  .bar .search input { padding: 10px 14px 10px 40px; font-size: 15px; border-radius: 11px; }
+  .bar .search .ico { left: 13px; }
+  .star { color: var(--ink-3); display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; flex: none; }
+  .star:hover { background: var(--surface); color: var(--ink); }
+  .star.on { color: var(--star); }
+
+  .trail { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; margin: 18px 0 0; font-size: 13px; }
   .trail:empty { display: none; }
-  .trail .step { color: var(--ink-2); padding: 2px 4px; border-radius: 6px; }
-  .trail .step:hover { color: var(--blue); }
+  .trail .step { color: var(--ink-2); padding: 3px 5px; border-radius: 6px; }
+  .trail .step:hover { color: var(--accent); }
   .trail .step.cur { color: var(--ink); font-weight: 600; }
-  .trail .sep { color: var(--ink-2); opacity: .5; }
+  .trail .sep { color: var(--ink-3); }
 
-  /* word view — borderless reading */
-  .entry { margin-top: 22px; }
-  .head { display: flex; align-items: center; gap: 12px; }
-  .head h1 { margin: 0; font-size: 40px; font-weight: 700; letter-spacing: -0.03em; }
-  .phon { color: var(--ink-2); font-size: 17px; }
-  .say { color: var(--blue); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; }
-  .say:hover { background: var(--fill); }
+  .entry { background: var(--surface); border: 1px solid var(--hair); border-radius: 20px; box-shadow: var(--shadow); padding: 30px 32px 32px; margin-top: 18px; }
+  .head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .head h1 { margin: 0; font-family: var(--serif); font-weight: 600; font-size: 42px; letter-spacing: -0.02em; line-height: 1.1; }
+  .phon { color: var(--ink-2); font-size: 17px; font-family: var(--serif); }
+  .say { align-self: center; color: var(--accent); background: var(--accent-bg); display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; margin-left: auto; flex: none; transition: transform .1s; }
+  .say:hover { filter: brightness(.97); }
   .say:active { transform: scale(.9); }
 
-  .pos { margin: 26px 0 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
-  ol { margin: 0; padding-left: 20px; }
-  ol li { margin: 8px 0; }
-  ol li::marker { color: var(--ink-2); font-size: 14px; }
-  .eg { color: var(--ink-2); margin-top: 3px; }
+  .pos { margin: 28px 0 10px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-3); }
+  ol { margin: 0; padding-left: 24px; font-family: var(--serif); }
+  ol li { margin: 11px 0; font-size: 18px; line-height: 1.6; }
+  ol li::marker { color: var(--ink-3); font-size: 15px; font-family: var(--ui); }
+  .eg { color: var(--ink-2); font-style: italic; margin-top: 5px; }
   .eg::before { content: "\201C"; } .eg::after { content: "\201D"; }
-  .sim { margin-top: 14px; font-size: 15px; color: var(--ink-2); }
-  .src { margin-top: 22px; font-size: 12px; color: var(--ink-2); opacity: .7; }
+  .sim { margin-top: 16px; font-family: var(--ui); font-size: 14.5px; color: var(--ink-2); }
+  .sim .lbl { color: var(--ink-3); }
+  .src { margin-top: 24px; font-family: var(--ui); font-size: 12px; color: var(--ink-3); }
 
-  .w { cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: color .1s, text-decoration-color .1s; }
-  .w:hover { color: var(--blue); text-decoration-color: currentColor; }
+  .w { cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: color .12s, text-decoration-color .12s; }
+  .w:hover { color: var(--accent); text-decoration-color: currentColor; }
 
-  /* saved list */
-  .saved { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--hair); }
-  .saved:not(.open) { display: none; }
-  .saved h2 { margin: 0 0 12px; font-size: 14px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: .05em; }
-  .saved .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { background: var(--fill); border-radius: 999px; padding: 6px 14px; font-size: 15px; }
-  .chip:hover { color: var(--blue); }
-  .saved .none { color: var(--ink-2); font-size: 15px; }
+  .sheet { background: var(--surface); border: 1px solid var(--hair); border-radius: 16px; box-shadow: var(--shadow); padding: 18px 20px; margin-top: 16px; }
+  .sheet:not(.open) { display: none; }
+  .sheet h2 { margin: 0 0 12px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+  .sheet .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sheet .none { color: var(--ink-3); font-size: 14px; }
 
-  .msg { margin-top: 40px; text-align: center; color: var(--ink-2); font-size: 16px; }
-  .spin { display: inline-block; width: 15px; height: 15px; border: 2px solid var(--hair); border-top-color: var(--blue); border-radius: 50%; animation: sp .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  .msg { text-align: center; color: var(--ink-2); font-size: 16px; padding: 60px 0; }
+  .spin { display: inline-block; width: 15px; height: 15px; border: 2px solid var(--hair); border-top-color: var(--accent); border-radius: 50%; animation: sp .7s linear infinite; vertical-align: -2px; margin-right: 7px; }
   @keyframes sp { to { transform: rotate(360deg); } }
 </style>
 
-<div class="wrap">
-  <div class="top">
-    <button class="brand" onclick="reset()">Nested</button>
-    <button class="starbtn" id="starTop" title="Saved words" onclick="toggleSaved()">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.5l2.5 5.6 6.1.6-4.6 4 1.4 6L12 16.6 6.6 19.7l1.4-6-4.6-4 6.1-.6z"/></svg>
-    </button>
-  </div>
+<body class="home">
 
+<section class="hero">
+  <div class="mark"><span class="g">◎</span> Nested</div>
+  <p class="sub">Learn a language by diving through its own words.</p>
   <div class="search">
     <span class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
     <input id="q" placeholder="Look up a word" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" />
   </div>
+  <div class="egs" id="egs"></div>
+</section>
 
-  <div class="saved" id="saved"><h2>Saved</h2><div class="chips" id="savedList"></div></div>
+<div class="app">
+  <header class="bar">
+    <button class="brand" onclick="reset()"><span class="g">◎</span> Nested</button>
+    <div class="search">
+      <span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <input id="q2" placeholder="Look up a word" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" />
+    </div>
+    <button class="star" id="star" title="Save" onclick="toggleStar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.5l2.5 5.6 6.1.6-4.6 4 1.4 6L12 16.6 6.6 19.7l1.4-6-4.6-4 6.1-.6z"/></svg>
+    </button>
+  </header>
 
+  <div class="sheet" id="sheet"><h2>Saved</h2><div class="chips" id="savedList"></div></div>
   <nav class="trail" id="trail"></nav>
   <main id="stage"></main>
 </div>
@@ -121,9 +150,9 @@
 const API = "https://api.dictionaryapi.dev/api/v2/entries/en/";
 const WIK = "https://en.wiktionary.org/api/rest_v1/page/definition/";
 const MAX_SAVED = 500;
-const EXAMPLES = ["serendipity", "ephemeral", "resilience"];
+const EXAMPLES = ["serendipity", "ephemeral", "resilience", "nuance"];
 const $ = s => document.querySelector(s);
-const stage = $("#stage"), trailEl = $("#trail");
+const q = $("#q"), q2 = $("#q2"), stage = $("#stage"), trailEl = $("#trail");
 
 let trail = [], current = null;
 const cache = new Map();
@@ -135,17 +164,18 @@ const store = {
   toggle(w){ const l = this.list; this.list = l.includes(w) ? l.filter(x => x !== w) : [w, ...l]; },
 };
 
-$("#q").addEventListener("keydown", e => { if (e.key === "Enter") { const w = $("#q").value.trim(); if (w) dig(w); } });
+$("#egs").innerHTML = EXAMPLES.map(w => `<button class="pill" onclick="dig('${w}')">${w}</button>`).join("");
+[q, q2].forEach(el => el.addEventListener("keydown", e => { if (e.key === "Enter") { const v = el.value.trim(); if (v) dig(v); } }));
 
-function reset() { trail = []; current = null; $("#q").value = ""; renderTrail(); stage.innerHTML = hint(); $("#saved").classList.remove("open"); $("#q").focus(); }
-function hint() { return `<p class="hint">Tap a word inside any definition to dive deeper. Try ${EXAMPLES.map(w => `<button class="ex" onclick="dig('${w}')">${w}</button>`).join(", ")}</p>`; }
+function reset() { trail = []; current = null; q.value = ""; q2.value = ""; renderTrail(); stage.innerHTML = ""; $("#sheet").classList.remove("open"); document.body.className = "home"; q.focus(); }
 
 async function dig(word, opts={}) {
   word = word.replace(/[^A-Za-z'-]/g, "");
   if (!word) return;
   if (!opts.back) { const i = trail.indexOf(word); trail = i >= 0 ? trail.slice(0, i + 1) : [...trail, word]; }
-  $("#q").value = word;
-  $("#saved").classList.remove("open");
+  q.value = word; q2.value = word;
+  document.body.className = "viewing";
+  $("#sheet").classList.remove("open");
   renderTrail();
   await load(word);
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -154,6 +184,7 @@ function goTo(i) { trail = trail.slice(0, i + 1); renderTrail(); load(trail[i]);
 
 function renderTrail() {
   trailEl.innerHTML = "";
+  if (trail.length < 2) return;                 // no redundant single-word crumb
   trail.forEach((w, i) => {
     if (i) { const s = document.createElement("span"); s.className = "sep"; s.textContent = "›"; trailEl.appendChild(s); }
     const b = document.createElement("button");
@@ -171,44 +202,27 @@ async function load(word) {
     current = { word, data: entry.data };
     render(word, entry.data, entry.source);
   } catch {
-    stage.innerHTML = `<p class="msg">No entry for “<b>${word}</b>”. Try the base form of the word.</p>`;
+    stage.innerHTML = `<div class="entry"><p class="msg" style="padding:20px 0">No entry for “<b>${word}</b>”. Try the base form of the word.</p></div>`;
+    current = null; syncStar();
   }
 }
 
-// Primary: Free Dictionary (clean defs + real audio). Fallback: Wiktionary (huge coverage).
-// Both are case-sensitive for proper nouns, so try a few casings.
 async function fetchEntry(word) {
   const cands = [...new Set([word, word.toLowerCase(), cap(word)])];
-  for (const c of cands) {
-    const r = await fetch(API + encodeURIComponent(c));
-    if (r.ok) return { data: await r.json(), source: "dict" };
-  }
-  for (const c of cands) {
-    const w = await fetch(WIK + encodeURIComponent(c));
-    if (!w.ok) continue;
-    const data = parseWik(await w.json());
-    if (data) return { data, source: "wik" };
-  }
+  for (const c of cands) { const r = await fetch(API + encodeURIComponent(c)); if (r.ok) return { data: await r.json(), source: "dict" }; }
+  for (const c of cands) { const w = await fetch(WIK + encodeURIComponent(c)); if (!w.ok) continue; const data = parseWik(await w.json()); if (data) return { data, source: "wik" }; }
   throw 0;
 }
 function cap(w) { return w ? w[0].toUpperCase() + w.slice(1) : w; }
 function parseWik(j) {
   const en = (j.en || []).filter(b => (b.definitions || []).some(d => strip(d.definition).trim()));
   if (!en.length) return null;
-  return [{
-    phonetics: [], phonetic: "",
-    meanings: en.map(b => ({
-      partOfSpeech: (b.partOfSpeech || "").toLowerCase(),
-      definitions: b.definitions.map(d => ({
-        definition: strip(d.definition),
-        example: (d.examples && d.examples[0]) ? strip(d.examples[0]) : null,
-      })).filter(d => d.definition.trim()),
-      synonyms: [],
-    })),
-  }];
+  return [{ phonetics: [], phonetic: "", meanings: en.map(b => ({
+    partOfSpeech: (b.partOfSpeech || "").toLowerCase(),
+    definitions: b.definitions.map(d => ({ definition: strip(d.definition), example: (d.examples && d.examples[0]) ? strip(d.examples[0]) : null })).filter(d => d.definition.trim()),
+    synonyms: [],
+  })) }];
 }
-
-// strip HTML tags and decode entities via the DOM
 function strip(html) { const t = document.createElement("div"); t.innerHTML = html || ""; return (t.textContent || "").trim(); }
 
 function render(word, data, source) {
@@ -219,7 +233,7 @@ function render(word, data, source) {
     <h1>${word}</h1>
     ${phon ? `<span class="phon">${phon}</span>` : ""}
     <button class="say" title="Pronounce" onclick="speak('${word}','${audio}')">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16 8.5a5 5 0 010 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16 8.5a5 5 0 010 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     </button>
   </div>`;
 
@@ -232,7 +246,7 @@ function render(word, data, source) {
     });
     html += `</ol>`;
     const syns = (m.synonyms || []).slice(0, 8);
-    if (syns.length) html += `<div class="sim">Similar: ${syns.map(s => `<span class="w">${s}</span>`).join(", ")}</div>`;
+    if (syns.length) html += `<div class="sim"><span class="lbl">Similar </span>${syns.map(s => `<span class="w">${s}</span>`).join(", ")}</div>`;
   }));
   if (source === "wik") html += `<p class="src">via Wiktionary</p>`;
   html += `</div>`;
@@ -250,25 +264,23 @@ function speak(word, audio) {
 }
 function tts(word) { if (!window.speechSynthesis) return; const u = new SpeechSynthesisUtterance(word); u.lang = "en-US"; u.rate = .95; speechSynthesis.cancel(); speechSynthesis.speak(u); }
 
-// top-right star = save the CURRENT word (or open the saved list when idle)
-function toggleSaved() {
+function toggleStar() {
   if (current) { store.toggle(current.word); syncStar(); }
-  else { $("#saved").classList.toggle("open"); renderSavedList(); }
+  else { $("#sheet").classList.toggle("open"); renderSaved(); }
 }
 function syncStar() {
-  const btn = $("#starTop");
-  btn.classList.toggle("active", current && store.has(current.word));
-  btn.title = current ? (store.has(current.word) ? "Saved — tap to remove" : "Save this word") : "Saved words";
-  renderSavedList();
+  const btn = $("#star");
+  const on = current && store.has(current.word);
+  btn.classList.toggle("on", !!on);
+  btn.querySelector("svg path").setAttribute("fill", on ? "currentColor" : "none");
+  renderSaved();
 }
-function renderSavedList() {
+$("#star").addEventListener("contextmenu", e => { e.preventDefault(); $("#sheet").classList.toggle("open"); renderSaved(); });
+function renderSaved() {
   const l = store.list;
-  $("#savedList").innerHTML = l.length ? l.map(w => `<button class="chip" onclick="dig('${w}')">${w}</button>`).join("") : `<span class="none">Star a word to save it.</span>`;
+  $("#savedList").innerHTML = l.length ? l.map(w => `<button class="pill" onclick="dig('${w}')">${w}</button>`).join("") : `<span class="none">Star a word to save it here.</span>`;
 }
-
-// right-click / long-press the star to open the saved list even while viewing a word
-$("#starTop").addEventListener("contextmenu", e => { e.preventDefault(); $("#saved").classList.toggle("open"); renderSavedList(); });
 
 reset();
-Object.assign(window, { dig, goTo, speak, toggleSaved, reset });
+Object.assign(window, { dig, goTo, speak, toggleStar, reset });
 </script>
