@@ -1,0 +1,318 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nested · Learn a language by diving through its own words</title>
+<style>
+  :root {
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --ink: #1d1d1f;
+    --ink-2: #6e6e73;
+    --ink-3: #86868b;
+    --line: rgba(0,0,0,.10);
+    --line-2: rgba(0,0,0,.06);
+    --blue: #0071e3;
+    --blue-soft: #e8f1fd;
+    --star: #ff9f0a;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 12px 32px rgba(0,0,0,.06);
+    --radius: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000;
+      --card: #1c1c1e;
+      --ink: #f5f5f7;
+      --ink-2: #a1a1a6;
+      --ink-3: #8a8a8f;
+      --line: rgba(255,255,255,.14);
+      --line-2: rgba(255,255,255,.08);
+      --blue: #0a84ff;
+      --blue-soft: #1c2733;
+      --star: #ffd60a;
+      --shadow: 0 1px 3px rgba(0,0,0,.4), 0 16px 40px rgba(0,0,0,.5);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+  button, input, select { font-family: inherit; }
+  button { cursor: pointer; }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 20px 20px 80px; }
+
+  /* top bar */
+  .bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 0 22px; }
+  .mark { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+  .mark .glyph { color: var(--blue); font-size: 18px; }
+  .saved-btn {
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 980px; padding: 7px 14px; font-size: 14px; font-weight: 500;
+    display: flex; align-items: center; gap: 6px; transition: transform .1s;
+  }
+  .saved-btn:active { transform: scale(.96); }
+  .saved-btn .n { color: var(--ink-3); }
+
+  /* hero */
+  .tagline { text-align: center; color: var(--ink-2); font-size: 19px; margin: 8px 0 26px; letter-spacing: -0.02em; }
+  .tagline b { color: var(--ink); font-weight: 600; }
+
+  .search { position: relative; margin-bottom: 12px; }
+  .search input {
+    width: 100%; padding: 16px 18px 16px 50px; font-size: 19px; color: var(--ink);
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: var(--shadow); letter-spacing: -0.01em;
+  }
+  .search input::placeholder { color: var(--ink-3); }
+  .search input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px var(--blue-soft); }
+  .search .ico { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
+
+  .row { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+  .lang {
+    appearance: none; -webkit-appearance: none; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 980px; padding: 6px 30px 6px 32px; font-size: 13.5px; font-weight: 500;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%2386868b' stroke-width='1.6'><path d='M1 1l4 4 4-4'/></svg>");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .lang-wrap { position: relative; display: inline-flex; align-items: center; }
+  .lang-wrap .globe { position: absolute; left: 11px; pointer-events: none; color: var(--ink-3); }
+  .examples { display: flex; gap: 7px; flex-wrap: wrap; }
+  .ex { border: none; background: transparent; color: var(--blue); font-size: 14px; padding: 6px 8px; border-radius: 8px; }
+  .ex:hover { background: var(--blue-soft); }
+
+  /* trail */
+  .trail { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; min-height: 0; }
+  .trail:empty { display: none; }
+  .crumb {
+    font-size: 13.5px; font-weight: 500; padding: 5px 12px; border-radius: 980px;
+    background: var(--card); border: 1px solid var(--line); color: var(--ink-2); transition: transform .1s;
+  }
+  .crumb:active { transform: scale(.95); }
+  .crumb.cur { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .trail .sep { color: var(--ink-3); font-size: 12px; }
+
+  /* card */
+  .card { background: var(--card); border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 30px; }
+  .head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+  .head h1 { margin: 0; font-size: 38px; font-weight: 700; letter-spacing: -0.03em; }
+  .phon { color: var(--ink-2); font-size: 17px; }
+  .iconbtn {
+    border: none; background: var(--bg); color: var(--blue); width: 38px; height: 38px;
+    border-radius: 50%; display: grid; place-items: center; transition: transform .1s, background .15s;
+  }
+  .iconbtn:hover { background: var(--blue-soft); }
+  .iconbtn:active { transform: scale(.9); }
+  .iconbtn.star.on { color: var(--star); }
+  .head .spacer { flex: 1; }
+
+  .pos { margin: 22px 0 8px; font-size: 14px; font-weight: 600; color: var(--blue); letter-spacing: 0; }
+  ol.defs { margin: 0; padding-left: 22px; }
+  ol.defs li { margin: 9px 0; }
+  ol.defs li::marker { color: var(--ink-3); font-size: 14px; }
+  .example { color: var(--ink-2); margin-top: 4px; font-size: 16px; }
+  .example::before { content: "\201C"; } .example::after { content: "\201D"; }
+  .syns { margin-top: 12px; font-size: 14.5px; color: var(--ink-2); }
+  .syns .lbl { color: var(--ink-3); margin-right: 4px; }
+
+  /* clickable words */
+  .w { cursor: pointer; border-radius: 5px; padding: 0 1.5px; transition: background .12s, color .12s; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; }
+  .w:hover { color: var(--blue); text-decoration-color: var(--blue); }
+
+  /* saved sheet */
+  .sheet { background: var(--card); border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 16px; }
+  .sheet:not(.open) { display: none; }
+  .sheet h3 { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 980px; padding: 5px 13px; font-size: 14px; }
+  .chip:hover { border-color: var(--blue); color: var(--blue); }
+  .empty { color: var(--ink-3); font-size: 14px; }
+
+  .state { text-align: center; color: var(--ink-2); padding: 8px 0; font-size: 16px; }
+  .spin { display: inline-block; width: 15px; height: 15px; border: 2px solid var(--line); border-top-color: var(--blue); border-radius: 50%; animation: sp .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+  .foot { text-align: center; color: var(--ink-3); font-size: 12.5px; margin-top: 28px; }
+  .foot a { color: var(--ink-3); }
+</style>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="mark"><span class="glyph">◎</span> Nested</div>
+    <button class="saved-btn" id="savedBtn" onclick="toggleSheet()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.6 5.7 6.3.6-4.7 4.2 1.4 6.2L12 16.9 6.4 19.9l1.4-6.2L3.1 9.5l6.3-.6z"/></svg>
+      Saved <span class="n" id="savedN">0</span>
+    </button>
+  </div>
+
+  <p class="tagline">Learn a language by diving through its <b>own words</b>.</p>
+
+  <div class="search">
+    <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+    <input id="q" placeholder="Look up any word…" autocomplete="off" autocapitalize="off" spellcheck="false" />
+  </div>
+
+  <div class="row">
+    <span class="lang-wrap">
+      <svg class="globe" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg>
+      <select class="lang" id="lang" title="More languages coming soon">
+        <option value="en" selected>English</option>
+        <option disabled>Español · soon</option>
+        <option disabled>Français · soon</option>
+        <option disabled>Deutsch · soon</option>
+        <option disabled>日本語 · soon</option>
+      </select>
+    </span>
+    <div class="examples" id="examples"></div>
+  </div>
+
+  <div class="sheet" id="sheet"><h3>Saved words</h3><div class="chips" id="savedList"></div></div>
+
+  <nav class="trail" id="trail"></nav>
+
+  <main id="stage" class="card">
+    <div class="state">Type a word above, or tap an example to start diving.</div>
+  </main>
+
+  <p class="foot">Definitions &amp; audio from <a href="https://dictionaryapi.dev" target="_blank" rel="noopener">Free Dictionary API</a>. Saved words stay on this device.</p>
+</div>
+
+<script>
+const DICT = "https://api.dictionaryapi.dev/api/v2/entries/";
+const MAX_SAVED = 500;
+const EXAMPLES = ["serendipity", "ephemeral", "resilience", "nuance"];
+const $ = s => document.querySelector(s);
+const stage = $("#stage"), trailEl = $("#trail");
+
+let trail = [];        // dive path
+let current = null;    // { word, data }
+const cache = new Map();
+
+// ---- storage (tiny: word list only) ----
+const saved = {
+  get list(){ try { return JSON.parse(localStorage.nst_saved || "[]"); } catch { return []; } },
+  set list(v){ localStorage.nst_saved = JSON.stringify(v.slice(0, MAX_SAVED)); },
+  has(w){ return this.list.includes(w); },
+  toggle(w){ const l = this.list; this.list = l.includes(w) ? l.filter(x=>x!==w) : [w, ...l]; },
+};
+
+// ---- examples ----
+$("#examples").innerHTML = EXAMPLES.map(w => `<button class="ex" onclick="dig('${w}')">${w}</button>`).join("");
+
+// ---- search ----
+$("#q").addEventListener("keydown", e => { if (e.key === "Enter") { const w = $("#q").value.trim(); if (w) dig(w); } });
+
+// ---- dive navigation ----
+async function dig(word, opts={}) {
+  word = word.toLowerCase().replace(/[^a-z'-]/g, "");
+  if (!word) return;
+  if (!opts.back) {
+    const i = trail.indexOf(word);
+    trail = i >= 0 ? trail.slice(0, i + 1) : [...trail, word];
+  }
+  $("#q").value = word;
+  renderTrail();
+  await load(word);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function goTo(i) { trail = trail.slice(0, i + 1); renderTrail(); load(trail[i]); }
+
+function renderTrail() {
+  trailEl.innerHTML = "";
+  trail.forEach((w, i) => {
+    if (i) { const s = document.createElement("span"); s.className = "sep"; s.textContent = "›"; trailEl.appendChild(s); }
+    const c = document.createElement("button");
+    c.className = "crumb" + (i === trail.length - 1 ? " cur" : "");
+    c.textContent = w; c.onclick = () => goTo(i);
+    trailEl.appendChild(c);
+  });
+}
+
+// ---- fetch + render ----
+async function load(word) {
+  const lang = $("#lang").value || "en";
+  stage.innerHTML = `<div class="state"><span class="spin"></span>Looking up “${word}”…</div>`;
+  try {
+    const key = lang + "/" + word;
+    let data = cache.get(key);
+    if (!data) {
+      const r = await fetch(DICT + lang + "/" + encodeURIComponent(word));
+      if (!r.ok) throw new Error("notfound");
+      data = await r.json();
+      cache.set(key, data);
+    }
+    current = { word, data };
+    render(word, data);
+  } catch {
+    stage.innerHTML = `<div class="state">No entry found for “<b>${word}</b>”.<br>Check the spelling, or try the base form of the word.</div>`;
+  }
+}
+
+function render(word, data) {
+  const phon = (data[0].phonetics || []).map(p => p.text).find(Boolean) || data[0].phonetic || "";
+  const audio = (data[0].phonetics || []).map(p => p.audio).find(Boolean) || "";
+  const on = saved.has(word);
+
+  let html = `<div class="head">
+    <h1>${word}</h1>
+    ${phon ? `<span class="phon">${phon}</span>` : ""}
+    <button class="iconbtn" title="Pronounce" onclick="speak('${word}','${audio}')">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16 8.5a5 5 0 010 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <span class="spacer"></span>
+    <button class="iconbtn star ${on ? "on" : ""}" title="Save" onclick="toggleFav('${word}')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="${on ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l2.6 5.7 6.3.6-4.7 4.2 1.4 6.2L12 16.9 6.4 19.9l1.4-6.2L3.1 9.5l6.3-.6z"/></svg>
+    </button>
+  </div>`;
+
+  data.forEach(entry => (entry.meanings || []).forEach(m => {
+    html += `<div class="pos">${m.partOfSpeech || ""}</div><ol class="defs">`;
+    (m.definitions || []).slice(0, 5).forEach(d => {
+      html += `<li>${clickable(d.definition)}`;
+      if (d.example) html += `<div class="example">${clickable(d.example)}</div>`;
+      html += `</li>`;
+    });
+    html += `</ol>`;
+    const syns = (m.synonyms || []).slice(0, 8);
+    if (syns.length) html += `<div class="syns"><span class="lbl">Similar</span>${syns.map(s => `<span class="w">${s}</span>`).join(" · ")}</div>`;
+  }));
+
+  stage.innerHTML = html;
+  stage.querySelectorAll(".w").forEach(el => el.onclick = () => dig(el.dataset.w || el.textContent));
+  renderSaved();
+}
+
+// wrap each word in a clickable span
+function clickable(text) {
+  return text.replace(/[A-Za-z][A-Za-z'-]*/g, m => `<span class="w" data-w="${m.toLowerCase()}">${m}</span>`);
+}
+
+// ---- speech ----
+function speak(word, audio) {
+  if (audio) new Audio(audio.startsWith("//") ? "https:" + audio : audio).play().catch(() => tts(word));
+  else tts(word);
+}
+function tts(word) {
+  if (!window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(word); u.lang = "en-US"; u.rate = .95;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+// ---- favorites ----
+function toggleFav(word) { saved.toggle(word); if (current) render(current.word, current.data); }
+function toggleSheet() { $("#sheet").classList.toggle("open"); }
+function renderSaved() {
+  const list = saved.list;
+  $("#savedN").textContent = list.length;
+  $("#savedList").innerHTML = list.length
+    ? list.map(w => `<button class="chip" onclick="dig('${w}')">${w}</button>`).join("")
+    : `<span class="empty">Tap the ★ on any word to save it here.</span>`;
+}
+
+// ---- init ----
+renderSaved();
+$("#q").focus();
+Object.assign(window, { dig, goTo, speak, toggleFav, toggleSheet });
+</script>
