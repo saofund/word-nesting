@@ -15,7 +15,7 @@ Look up a word, read its definition — then tap any word *inside* that definiti
 
 ## Language support
 
-The concept is language-agnostic. **v1 ships with English**, because the underlying [Free Dictionary API](https://dictionaryapi.dev) currently only serves reliable data for English. The UI already has a language selector wired up — more languages light up as data sources come online (see roadmap).
+The concept is language-agnostic. **v1 ships with English**, because the underlying [Free Dictionary API](https://dictionaryapi.dev) currently only serves reliable data for English. Other languages arrive once a multilingual data source is wired in (see roadmap).
 
 ## Roadmap / TODO
 
