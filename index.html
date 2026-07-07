@@ -79,6 +79,7 @@
   .eg { color: var(--ink-2); margin-top: 3px; }
   .eg::before { content: "\201C"; } .eg::after { content: "\201D"; }
   .sim { margin-top: 14px; font-size: 15px; color: var(--ink-2); }
+  .src { margin-top: 22px; font-size: 12px; color: var(--ink-2); opacity: .7; }
 
   .w { cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: color .1s, text-decoration-color .1s; }
   .w:hover { color: var(--blue); text-decoration-color: currentColor; }
@@ -118,6 +119,7 @@
 
 <script>
 const API = "https://api.dictionaryapi.dev/api/v2/entries/en/";
+const WIK = "https://en.wiktionary.org/api/rest_v1/page/definition/";
 const MAX_SAVED = 500;
 const EXAMPLES = ["serendipity", "ephemeral", "resilience"];
 const $ = s => document.querySelector(s);
@@ -139,7 +141,7 @@ function reset() { trail = []; current = null; $("#q").value = ""; renderTrail()
 function hint() { return `<p class="hint">Tap a word inside any definition to dive deeper. Try ${EXAMPLES.map(w => `<button class="ex" onclick="dig('${w}')">${w}</button>`).join(", ")}</p>`; }
 
 async function dig(word, opts={}) {
-  word = word.toLowerCase().replace(/[^a-z'-]/g, "");
+  word = word.replace(/[^A-Za-z'-]/g, "");
   if (!word) return;
   if (!opts.back) { const i = trail.indexOf(word); trail = i >= 0 ? trail.slice(0, i + 1) : [...trail, word]; }
   $("#q").value = word;
@@ -164,16 +166,52 @@ function renderTrail() {
 async function load(word) {
   stage.innerHTML = `<p class="msg"><span class="spin"></span>Looking up “${word}”…</p>`;
   try {
-    let data = cache.get(word);
-    if (!data) { const r = await fetch(API + encodeURIComponent(word)); if (!r.ok) throw 0; data = await r.json(); cache.set(word, data); }
-    current = { word, data };
-    render(word, data);
+    let entry = cache.get(word);
+    if (!entry) { entry = await fetchEntry(word); cache.set(word, entry); }
+    current = { word, data: entry.data };
+    render(word, entry.data, entry.source);
   } catch {
     stage.innerHTML = `<p class="msg">No entry for “<b>${word}</b>”. Try the base form of the word.</p>`;
   }
 }
 
-function render(word, data) {
+// Primary: Free Dictionary (clean defs + real audio). Fallback: Wiktionary (huge coverage).
+// Both are case-sensitive for proper nouns, so try a few casings.
+async function fetchEntry(word) {
+  const cands = [...new Set([word, word.toLowerCase(), cap(word)])];
+  for (const c of cands) {
+    const r = await fetch(API + encodeURIComponent(c));
+    if (r.ok) return { data: await r.json(), source: "dict" };
+  }
+  for (const c of cands) {
+    const w = await fetch(WIK + encodeURIComponent(c));
+    if (!w.ok) continue;
+    const data = parseWik(await w.json());
+    if (data) return { data, source: "wik" };
+  }
+  throw 0;
+}
+function cap(w) { return w ? w[0].toUpperCase() + w.slice(1) : w; }
+function parseWik(j) {
+  const en = (j.en || []).filter(b => (b.definitions || []).some(d => strip(d.definition).trim()));
+  if (!en.length) return null;
+  return [{
+    phonetics: [], phonetic: "",
+    meanings: en.map(b => ({
+      partOfSpeech: (b.partOfSpeech || "").toLowerCase(),
+      definitions: b.definitions.map(d => ({
+        definition: strip(d.definition),
+        example: (d.examples && d.examples[0]) ? strip(d.examples[0]) : null,
+      })).filter(d => d.definition.trim()),
+      synonyms: [],
+    })),
+  }];
+}
+
+// strip HTML tags and decode entities via the DOM
+function strip(html) { const t = document.createElement("div"); t.innerHTML = html || ""; return (t.textContent || "").trim(); }
+
+function render(word, data, source) {
   const phon = (data[0].phonetics || []).map(p => p.text).find(Boolean) || data[0].phonetic || "";
   const audio = (data[0].phonetics || []).map(p => p.audio).find(Boolean) || "";
 
@@ -196,6 +234,7 @@ function render(word, data) {
     const syns = (m.synonyms || []).slice(0, 8);
     if (syns.length) html += `<div class="sim">Similar: ${syns.map(s => `<span class="w">${s}</span>`).join(", ")}</div>`;
   }));
+  if (source === "wik") html += `<p class="src">via Wiktionary</p>`;
   html += `</div>`;
 
   stage.innerHTML = html;
@@ -203,7 +242,7 @@ function render(word, data) {
   syncStar();
 }
 
-function clickable(t) { return t.replace(/[A-Za-z][A-Za-z'-]*/g, m => `<span class="w" data-w="${m.toLowerCase()}">${m}</span>`); }
+function clickable(t) { return t.replace(/[A-Za-z][A-Za-z'-]*/g, m => `<span class="w" data-w="${m}">${m}</span>`); }
 
 function speak(word, audio) {
   if (audio) new Audio(audio.startsWith("//") ? "https:" + audio : audio).play().catch(() => tts(word));
