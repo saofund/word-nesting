@@ -9,9 +9,19 @@ Look up a word, read its definition — then tap any word *inside* that definiti
 ## Core features
 
 - **Infinite dive** — every word in a definition, example, or synonym list is clickable; tapping it opens that word's own definition.
+- **Search with live suggestions** — type and pick from autocomplete, or press `/` (or `⌘K` / `Ctrl K`) from anywhere. Recent lookups appear when the field is empty; a misspelling gets a "did you mean".
+- **Dive deeper** — each entry ends with the most useful words from its own definition, one tap away.
 - **Dive trail** — a breadcrumb of the path you've taken; tap any step to jump back.
 - **Pronunciation** — real human audio when available, browser speech synthesis as fallback.
 - **Save words** — star a word to keep it; saved words live in your browser (`localStorage`, capped at 500 words). Nothing leaves your device.
+
+## Data sources
+
+All free, keyless, browser-callable:
+
+- [Free Dictionary API](https://dictionaryapi.dev) — primary source; clean entries plus human audio.
+- [Wiktionary REST](https://en.wiktionary.org/api/rest_v1/) — fallback when the primary has no entry (e.g. proper nouns like *Latin*). Either source failing never blocks the other.
+- [Datamuse](https://www.datamuse.com/api/) — search autocomplete and spelling suggestions.
 
 ## Language support
 
